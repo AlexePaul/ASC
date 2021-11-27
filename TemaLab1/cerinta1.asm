@@ -4,7 +4,7 @@ length: .space 4
 string: .space 100
 formatScanf: .asciz "%s"
 formatPrintf: .asciz "sanki:%d\n"
-
+suma: .long 0
 .text
 
 .global main
@@ -26,15 +26,16 @@ movl $string, %edi
 xorl %ecx, %ecx
 
 forEt:
-xorl %ebx, %ebx
+movl $0,suma
 
-cmp $64, (%edi, %ecx, 1)
+movb (%edi, %ecx, 1), %al
+cmp $64, %al
 jl if1
 if1r:
 incl %ecx
 pushl %ecx
 
-pushl %ebx
+pushl suma
 pushl $formatPrintf
 call printf
 popl %ebx
@@ -50,7 +51,10 @@ xorl %ebx, %ebx
 int $0x80
 
 if1:
+xorl %ebx,%ebx
 movl $256, %eax
-mulb (%edi, %ecx, 1)
-movl %eax,%ebx
+movb (%edi, %ecx, 1), %bl
+subl $48, %ebx
+mull %ebx
+movl %eax,suma
 jmp if1r
