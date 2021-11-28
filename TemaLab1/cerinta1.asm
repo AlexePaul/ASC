@@ -8,6 +8,11 @@ formatPrintfNr: .asciz "%d "
 formatPrintfNrNeg: .asciz "-%d "
 formatPrintfVariabila: .asciz "%c "
 suma: .long 0
+olet: .asciz "let "
+oadd: .asciz "add "
+osub: .asciz "sub "
+omul: .asciz "mul "
+odiv: .asciz "div "
 
 .text
 
@@ -31,6 +36,8 @@ xorl %ecx, %ecx
 
 forEt:
 movl $0,suma
+movl $0,%eax
+movl $0,%ebx
 
 #Cifra1
 movb (%edi, %ecx, 1), %dl
@@ -72,6 +79,9 @@ je numarneg
 
 cmp $10, %ah
 je var
+
+cmp $12, %ah
+je operatie
 
 ret:
 pushl $0
@@ -177,5 +187,47 @@ pushl nr
 pushl $formatPrintfVariabila
 call printf
 popl %ebx
+popl %ebx
+jmp ret
+
+operatie:
+cmp $0, %al
+je let
+cmp $1, %al
+je add
+cmp $2, %al
+je sub
+cmp $3, %al
+je mul
+cmp $4, %al
+je div
+
+let:
+pushl $olet
+call printf
+popl %ebx
+jmp ret
+
+add:
+pushl $oadd
+call printf
+popl %ebx
+jmp ret
+
+sub:
+pushl $osub
+call printf
+popl %ebx
+jmp ret
+
+mul:
+pushl $omul
+call printf
+popl %ebx
+jmp ret
+
+div:
+pushl $odiv
+call printf
 popl %ebx
 jmp ret
