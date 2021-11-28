@@ -1,10 +1,14 @@
 .data
 
+nr: .space 4
 length: .space 4
 string: .space 100
 formatScanf: .asciz "%s"
-formatPrintf: .asciz "sanki:%d\n"
+formatPrintfNr: .asciz "%d "
+formatPrintfNrNeg: .asciz "-%d "
+formatPrintfVariabila: .asciz "%c "
 suma: .long 0
+
 .text
 
 .global main
@@ -28,41 +32,52 @@ xorl %ecx, %ecx
 forEt:
 movl $0,suma
 
-movb (%edi, %ecx, 1), %al
-cmp $64, %al
+#Cifra1
+movb (%edi, %ecx, 1), %dl
+cmp $64, %dl
 jl if1
 if1r:
-cmp $64, %al
+cmp $64, %dl
 jg if2
 if2r:
 incl %ecx
 
-movb (%edi, %ecx, 1), %al
-cmp $64, %al
+#Cifra2
+movb (%edi, %ecx, 1), %dl
+cmp $64, %dl
 jl if3
 if3r:
-cmp $64, %al
+cmp $64, %dl
 jg if4
 if4r:
 incl %ecx
 
-movb (%edi, %ecx, 1), %al
-cmp $64, %al
+#Cifra3
+xorl %eax, %eax
+movb (%edi, %ecx, 1), %dl
+cmp $64, %dl
 jl if5
 if5r:
-cmp $64, %al
+cmp $64, %dl
 jg if6
 if6r:
 incl %ecx
 
 pushl %ecx
-pushl suma
-pushl $formatPrintf
-call printf
-popl %ebx
+mov suma, %eax
+cmp $8, %ah
+je numar
+cmp $9, %ah
+je numarneg
+
+cmp $10, %ah
+je var
+
+ret:
+pushl $0
+call fflush
 popl %ebx
 popl %ecx
-
 cmp %ecx, length
 jle exit
 jmp forEt
@@ -73,6 +88,7 @@ xorl %ebx, %ebx
 int $0x80
 
 if1:
+xorl %eax, %eax
 xorl %ebx,%ebx
 movl $256, %eax
 movb (%edi, %ecx, 1), %bl
@@ -82,6 +98,7 @@ movl %eax,suma
 jmp if1r
 
 if2:
+xorl %eax, %eax
 xorl %ebx,%ebx
 movl $256, %eax
 movb (%edi, %ecx, 1), %bl
@@ -91,6 +108,7 @@ movl %eax,suma
 jmp if2r
 
 if3:
+xorl %eax, %eax
 xorl %ebx,%ebx
 movl $16, %eax
 movb (%edi, %ecx, 1), %bl
@@ -101,6 +119,7 @@ movl %eax, suma
 jmp if3r
 
 if4:
+xorl %eax, %eax
 xorl %ebx,%ebx
 movl $16, %eax
 movb (%edi, %ecx, 1), %bl
@@ -111,6 +130,7 @@ movl %eax, suma
 jmp if4r
 
 if5:
+xorl %eax, %eax
 xorl %ebx,%ebx
 movl $1, %eax
 movb (%edi, %ecx, 1), %bl
@@ -122,6 +142,7 @@ xorl %eax, %eax
 jmp if5r
 
 if6:
+xorl %eax, %eax
 xorl %ebx,%ebx
 movl $1, %eax
 movb (%edi, %ecx, 1), %bl
@@ -131,3 +152,30 @@ addl suma, %eax
 movl %eax, suma
 xorl %eax, %eax
 jmp if6r
+
+numar:
+mov %al, nr
+pushl nr
+pushl $formatPrintfNr
+call printf
+popl %ebx
+popl %ebx
+jmp ret
+
+numarneg:
+mov %al, nr
+pushl nr
+pushl $formatPrintfNrNeg
+call printf
+popl %ebx
+popl %ebx
+jmp ret
+
+var:
+mov %al, nr
+pushl nr
+pushl $formatPrintfVariabila
+call printf
+popl %ebx
+popl %ebx
+jmp ret
