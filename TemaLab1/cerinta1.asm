@@ -7,6 +7,7 @@ formatScanf: .asciz "%s"
 formatPrintfNr: .asciz "%d "
 formatPrintfNrNeg: .asciz "-%d "
 formatPrintfVariabila: .asciz "%c "
+formatPrintfNewLine: .asciz "\n"
 suma: .long 0
 olet: .asciz "let "
 oadd: .asciz "add "
@@ -93,6 +94,9 @@ jle exit
 jmp forEt
 
 exit:
+pushl $formatPrintfNewLine
+call printf
+popl %ebx
 movl $1, %eax
 xorl %ebx, %ebx
 int $0x80
