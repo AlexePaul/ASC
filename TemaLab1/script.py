@@ -1,3 +1,6 @@
+from pwn import *
+context.log_level = 'error'
+context.timeout = 20
 inputArray = [
       ["981819C03A7892DC00A78A78C03C048FFC029FFC01", 
        "8F890F94B8C8C02C03A758DFC00A75A75C04C01C03A71900C00A71A75C03", 
@@ -37,3 +40,58 @@ outputArray = [
        "5 3 7 20 18 -27 -19 32 25 -47 6 42 20 -45 47 -32 -48",
        "3 5 -235 -213 -125 138 -38 164 -104 237 95 -102 244 227 -34 -164 -92",
        "3 5 -235 -213 -125 138 -38 164 -104 237 95 -102 244 227 -34 -164 -92"]]
+
+executables = ["./cerinta1", "./cerinta2", "./cerinta3", "./cerinta4"]
+
+estimatedGrade = 0
+
+for taskIndex in range(len(executables)):
+	findProcess = process(["find", executables[taskIndex]])
+	findResult = findProcess.recv()
+	findProcess.kill()
+	
+	if findResult.replace("\n", "").strip() != executables[taskIndex]:
+		print "Executable %s not found!" % executables[taskIndex]
+		continue 
+		
+	print "Task: %s" % executables[taskIndex]
+		
+	taskInputArray = inputArray[taskIndex]
+	taskOutputArray = outputArray[taskIndex]
+	taskPoints = points[taskIndex]
+	
+	for i in range(0, len(taskInputArray)):
+		try:
+			sh = process(executables[taskIndex])
+			sh.sendline(taskInputArray[i])
+			line = sh.recvline().replace("\n", "").strip()
+			sh.kill()
+			
+			if line == taskOutputArray[i]:
+				estimatedGrade += taskPoints[i]
+				
+				if taskIndex < 3:
+					print "\tTest %d: OK (%dp)" % (i, taskPoints[i]) 
+				
+				if taskIndex == 3 and i % 2 == 0:
+					print "\tTest %d: OK (%dp)" % (i, taskPoints[i]) 
+					taskPoints[i + 1] = 0 # already scored
+					
+				if taskIndex == 3 and i % 2 == 1:
+					if taskPoints[i] == 0:
+						print "\tTest %d: already scored" % i
+					else:
+						print "\tTest %d: OK (%dp)" % (i, taskPoints[i])
+			else:
+				print "\tTest %d failed (0p)" % i 
+				print "\t   Input: %s" % taskInputArray[i]
+				print "\t   Your output: %s" % line 
+				print "\t   Expected output: %s" % taskOutputArray[i]
+			
+			if taskIndex == 3 and i % 2 == 1:
+				print "\t------------------"
+		except:
+			print "\tTest %d: exception! (0p)" % i
+	print "\n"
+
+print "Estimated grade %dp / 100" % (estimatedGrade + 10)
