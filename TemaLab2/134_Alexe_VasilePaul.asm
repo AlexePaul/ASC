@@ -1,0 +1,198 @@
+#5 1 1 0 0 0 0 0 3 0 0 0 0 0 0 4 5
+.data
+n: .space 4
+m: .space 4
+initial: .space 360
+solution: .space 360
+frecv: .space 120
+retPos: .space 4
+pos: .space 4
+valInitial: .space 4
+formatScanf: .asciz "%d%d"
+formatScanf2: .asciz "%d"
+formatPrintf: .asciz "%d "
+formatprintf2: .asciz "\n"
+formatprintf3: .asciz "-1\n"
+maxval: .space 4
+aux: .space 4
+x: .space 4
+
+.text
+
+bkt:
+popl retPos
+popl pos
+movl pos, %ebx
+cmp maxval, %ebx
+jg afisare
+lea initial, %edi
+movl pos, %ebx
+cmp $0, (%edi, %ebx, 4)
+je case0
+cmp $0, (%edi, %ebx, 4)
+jne casen0
+
+afisare:
+xorl %ecx, %ecx
+incl %ecx
+printFor:
+lea solution, %esi
+movl (%esi, %ecx, 4), %eax
+pushl %ecx
+pushl %eax
+pushl $formatPrintf
+call printf
+popl %ebx
+popl %ebx
+popl %ecx
+incl %ecx
+cmp maxval, %ecx
+jle printFor
+cmp maxval, %ecx
+jg exit
+
+case0:
+xorl %ecx, %ecx
+incl %ecx
+bktfor:
+lea frecv, %edi
+movl (%edi, %ecx, 4), %eax
+cmp $3, %eax
+jge finalfor
+
+lea solution, %esi
+movl %ecx, %edx
+movl pos, %ebx
+subl m,%ebx
+movl %ebx, %eax
+forcet1:
+movl pos, %ebx
+cmp (%esi, %eax, 4), %edx
+je finalfor
+incl %eax
+cmp %ebx, %eax
+jl forcet1
+lea solution, %edi
+movl pos, %ebx
+movl %ecx, (%edi, %ebx, 4)
+lea frecv, %esi
+movl (%esi, %ecx, 4), %eax
+incl %eax
+movl %eax, (%esi, %ecx, 4)
+
+pushl %ecx
+pushl retPos
+incl pos
+pushl pos
+call bkt
+etdb:
+popl pos
+decl pos
+popl retPos
+popl %ecx
+
+lea frecv, %esi
+movl (%esi, %ecx, 4), %eax
+decl %eax
+movl %eax, (%esi, %ecx, 4)
+
+finalfor:
+incl %ecx
+cmp n, %ecx
+jle bktfor
+jmp fin
+
+casen0:
+lea initial, %edi
+lea solution, %esi
+movl pos, %ebx
+subl m,%ebx
+movl %ebx, %ecx
+forcet2:
+movl pos, %ebx
+movl (%edi, %ebx, 4), %eax
+cmp (%esi, %ecx, 4), %eax
+je fin
+incl %ecx
+cmp %ebx, %ecx
+jle forcet2
+
+movl pos, %ebx
+movl (%edi,%ebx, 4), %eax
+lea solution, %edi
+movl %eax, (%edi, %ebx, 4)
+pushl retPos
+incl pos
+pushl pos
+call bkt
+popl pos
+decl pos
+popl retPos
+
+jmp fin
+exit:
+pushl $formatprintf2
+call printf
+popl %ebx
+movl $1, %eax
+xorl %ebx, %ebx
+int $0x80
+
+fin:
+pushl pos
+pushl retPos
+ret
+
+.global main
+
+main:
+
+#reading n
+pushl $m
+pushl $n
+pushl $formatScanf
+call scanf
+popl %ebx
+popl %ebx
+popl %ebx
+
+movl n, %eax
+movl $3, %ebx
+mull %ebx
+movl %eax, maxval
+lea initial, %edi
+lea frecv, %esi
+
+xorl %ecx, %ecx
+incl %ecx
+
+readfor:
+pushl %ecx
+pushl $aux
+pushl $formatScanf2
+call scanf
+pustscanf:
+popl %ebx
+popl %ebx
+popl %ecx
+lea initial, %edi
+lea frecv, %esi
+movl aux, %ebx
+movl %ebx, (%edi, %ecx, 4)
+movl aux, %ebx
+movl (%esi,%ebx, 4), %eax
+incl %eax
+movl %eax, (%esi,%ebx, 4)
+incl %ecx 
+cmp maxval, %ecx
+jle readfor
+
+pushl $1
+call bkt
+
+pushl $formatprintf3
+call printf
+popl %ebx
+movl $1, %eax
+xorl %ebx, %ebx
+int $0x80
