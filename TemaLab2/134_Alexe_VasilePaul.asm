@@ -1,19 +1,17 @@
-#5 2 1 0 0 0 0 0 3 0 0 0 0 0 0 4 5
 .data
 n: .space 4
 m: .space 4
-initial: .space 360
-solution: .space 360
-frecv: .space 120
-retPos: .space 4
+initial: .space 364
+solution: .space 364
+frecv: .space 124
+afisat: .long 0
 pos: .space 4
 valInitial: .space 4
 formatScanf: .asciz "%d%d"
 formatScanf2: .asciz "%d"
 formatPrintf: .asciz "%d "
 formatprintf2: .asciz "\n"
-formatprintf3: .asciz "-1\n"
-formatprintf4: .asciz "%d\n"
+formatprintf3: .asciz "-1"
 maxval: .space 4
 aux: .space 4
 x: .space 4
@@ -21,9 +19,17 @@ x: .space 4
 .text
 
 bkt:
-popl retPos
-popl pos
-movl pos, %ebx
+pushl %ebp
+movl %esp, %ebp
+pushl %ebx
+pushl %esi
+pushl %edi
+movl 8(%ebp), %ebx
+movl %ebx, pos
+
+cmp $0, afisat
+jne fin
+
 cmp maxval, %ebx
 jg afisare
 lea initial, %edi
@@ -35,6 +41,7 @@ cmp $0, %ebx
 jne casen0
 
 afisare:
+incl afisat
 xorl %ecx, %ecx
 incl %ecx
 printFor:
@@ -51,7 +58,7 @@ incl %ecx
 cmp maxval, %ecx
 jle printFor
 cmp maxval, %ecx
-jg exit
+jg fin
 
 case0:
 xorl %ecx, %ecx
@@ -90,13 +97,11 @@ incl %eax
 movl %eax, (%esi, %ecx, 4)
 
 pushl %ecx
-pushl retPos
 incl pos
 pushl pos
 call bkt
 popl pos
 decl pos
-popl retPos
 popl %ecx
 
 lea frecv, %esi
@@ -129,26 +134,17 @@ movl pos, %ebx
 movl (%edi,%ebx, 4), %eax
 lea solution, %edi
 movl %eax, (%edi, %ebx, 4)
-pushl retPos
 incl pos
 pushl pos
 call bkt
 popl pos
 decl pos
-popl retPos
-
-jmp fin
-exit:
-pushl $formatprintf2
-call printf
-popl %ebx
-movl $1, %eax
-xorl %ebx, %ebx
-int $0x80
 
 fin:
-pushl pos
-pushl retPos
+popl %edi
+popl %esi
+popl %ebx
+popl %ebp
 ret
 
 .global main
@@ -197,8 +193,16 @@ jle readfor
 
 pushl $1
 call bkt
+popl %ebx
 
+cmp $0, afisat
+jne exitfin
 pushl $formatprintf3
+call printf
+popl %ebx
+
+exitfin:
+pushl $formatprintf2
 call printf
 popl %ebx
 movl $1, %eax
