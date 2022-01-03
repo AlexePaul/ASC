@@ -1,4 +1,4 @@
-#5 1 1 0 0 0 0 0 3 0 0 0 0 0 0 4 5
+#5 2 1 0 0 0 0 0 3 0 0 0 0 0 0 4 5
 .data
 n: .space 4
 m: .space 4
@@ -13,6 +13,7 @@ formatScanf2: .asciz "%d"
 formatPrintf: .asciz "%d "
 formatprintf2: .asciz "\n"
 formatprintf3: .asciz "-1\n"
+formatprintf4: .asciz "%d\n"
 maxval: .space 4
 aux: .space 4
 x: .space 4
@@ -27,9 +28,10 @@ cmp maxval, %ebx
 jg afisare
 lea initial, %edi
 movl pos, %ebx
-cmp $0, (%edi, %ebx, 4)
+movl (%edi, %ebx, 4), %ebx
+cmp $0, %ebx
 je case0
-cmp $0, (%edi, %ebx, 4)
+cmp $0, %ebx
 jne casen0
 
 afisare:
@@ -65,6 +67,12 @@ movl %ecx, %edx
 movl pos, %ebx
 subl m,%ebx
 movl %ebx, %eax
+
+cmp $1, %eax
+jge forcet1
+
+movl $1, %eax
+
 forcet1:
 movl pos, %ebx
 cmp (%esi, %eax, 4), %edx
@@ -72,6 +80,7 @@ je finalfor
 incl %eax
 cmp %ebx, %eax
 jl forcet1
+
 lea solution, %edi
 movl pos, %ebx
 movl %ecx, (%edi, %ebx, 4)
@@ -85,7 +94,6 @@ pushl retPos
 incl pos
 pushl pos
 call bkt
-etdb:
 popl pos
 decl pos
 popl retPos
@@ -115,7 +123,7 @@ cmp (%esi, %ecx, 4), %eax
 je fin
 incl %ecx
 cmp %ebx, %ecx
-jle forcet2
+jl forcet2
 
 movl pos, %ebx
 movl (%edi,%ebx, 4), %eax
